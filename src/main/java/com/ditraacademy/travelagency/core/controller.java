@@ -16,7 +16,9 @@ public class controller {
 
     @PostMapping("/user")
     public void createUser (@RequestBody User user){
-      userRepository.save(user);
+      User user1 = new User();
+      user1.setName("manel");
+        userRepository.save(user);
     }
 
     @GetMapping ("/users")
