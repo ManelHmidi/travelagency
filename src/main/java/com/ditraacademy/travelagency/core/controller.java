@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 public class controller {
@@ -28,12 +29,15 @@ public class controller {
     }
 
     //method update user by ID
-    @PutMapping("/users/{id}/{name}/{age}")
-     public void UpdateUserById(@PathVariable int id, @PathVariable String name, @PathVariable int age){
-       User user=userRepository.getOne(id);
-       user.setName(name);
-       user.setAge(age);
-       userRepository.save(user);
+    @PutMapping("/users/{id}")
+     public void UpdateUserById(@PathVariable int id, @RequestBody User updatedUser){
+       Optional<User> userOptional=userRepository.findById(id);
+       User dataBaseUser=userOptional.get();
+
+        dataBaseUser.setName(updatedUser.getName());
+        dataBaseUser.setAge(updatedUser.getAge());
+
+       userRepository.save(dataBaseUser);
     }
 
 }
