@@ -36,7 +36,7 @@ public class DestinationController {
         return destinationServices.getOneDestination(id);
     }
 
-    @DeleteMapping ("/destination/{id}")
+    @DeleteMapping ("/destinations/{id}")
     public ResponseEntity<?> deleteDestination(@PathVariable int id) {
         return destinationServices.deleteDestination(id);
     }

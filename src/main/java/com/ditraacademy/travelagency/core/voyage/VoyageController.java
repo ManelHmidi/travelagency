@@ -37,4 +37,14 @@ public class VoyageController {
     public ResponseEntity<?> deleteVoyage(@PathVariable int id) {
         return voyageServices.deleteVoyage(id);
     }
+
+    @GetMapping("/voyaget")
+    public List<Voyage> getVoyagesByPrice(@RequestParam float valMin ,@RequestParam float valMax){
+        return voyageServices.getVoyagesByPrice(valMin,valMax);
+    }
+
+    @GetMapping("/voyagess")
+    public List<Voyage> getVoyageByPrice(@RequestParam float price,@RequestParam int nbPlaces){
+        return voyageServices.getVoyagesByPrice(price,nbPlaces);
+    }
 }

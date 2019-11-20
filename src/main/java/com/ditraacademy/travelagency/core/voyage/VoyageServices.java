@@ -2,6 +2,7 @@ package com.ditraacademy.travelagency.core.voyage;
 
 
 import com.ditraacademy.travelagency.core.destination.Destination;
+import com.ditraacademy.travelagency.core.destination.DestinationRepository;
 import com.ditraacademy.travelagency.utils.ErrorResponseModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,24 +16,17 @@ import java.util.Optional;
 public class VoyageServices {
     @Autowired
     VoyageRepository voyageRepository;
+    @Autowired
+    DestinationRepository destinationRepository;
 
     public ResponseEntity<?> createVoyage (Voyage voyage){
 
-        if (voyage.getTitre() == null)
-            return new ResponseEntity<>(new ErrorResponseModel("Voyage Title Required"), HttpStatus.BAD_REQUEST);
-
-        if (voyage.getDescription() == null)
-            return new ResponseEntity<>(new ErrorResponseModel("Description Required"), HttpStatus.BAD_REQUEST);
-
-        if (voyage.getNbPlaces() == null)
-            return new ResponseEntity<>(new ErrorResponseModel("Number of places Required"), HttpStatus.BAD_REQUEST);
-
-        if (voyage.getPrix() == null)
-            return new ResponseEntity<>(new ErrorResponseModel("Price Required"), HttpStatus.BAD_REQUEST);
-
-        if (voyage.getDate() == null)
-            return new ResponseEntity<>(new ErrorResponseModel("Date Required"), HttpStatus.BAD_REQUEST);
-
+       Optional<Destination> destinationOptional= destinationRepository.findById(voyage.getDestination().getId());
+       if(!destinationOptional.isPresent()){
+           ErrorResponseModel errorResponseModel = new ErrorResponseModel("Destination not found");
+           new ResponseEntity<>(errorResponseModel, HttpStatus.BAD_REQUEST);
+       }
+       voyage.setDestination(destinationOptional.get());
         voyage=voyageRepository.save(voyage);
         return new ResponseEntity<>(voyage, HttpStatus.OK);
     }
@@ -93,4 +87,13 @@ public class VoyageServices {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
+    public List<Voyage> getVoyagesByPrice(float min, float max) {
+        List<Voyage> voyageList = voyageRepository.findAllByPrixIsBetweenAndNbPlacesNot(min, max,0);
+        return voyageList;
+    }
+
+    public List<Voyage> getVoyageByPrice(float price, int nbPlaces) {
+        List<Voyage> voyageList = voyageRepository.findAllByQuery(price,nbPlaces);
+        return voyageList;
+    }
 }
