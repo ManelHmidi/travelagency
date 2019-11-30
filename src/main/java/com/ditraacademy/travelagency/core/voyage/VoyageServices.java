@@ -21,12 +21,12 @@ public class VoyageServices {
 
     public ResponseEntity<?> createVoyage (Voyage voyage){
 
-       Optional<Destination> destinationOptional= destinationRepository.findById(voyage.getDestination().getId());
-       if(!destinationOptional.isPresent()){
-           ErrorResponseModel errorResponseModel = new ErrorResponseModel("Destination not found");
-           new ResponseEntity<>(errorResponseModel, HttpStatus.BAD_REQUEST);
-       }
-       voyage.setDestination(destinationOptional.get());
+//       Optional<Destination> destinationOptional= destinationRepository.findById(voyage.getDestination().getId());
+//       if(!destinationOptional.isPresent()){
+//           ErrorResponseModel errorResponseModel = new ErrorResponseModel("Destination not found");
+//           new ResponseEntity<>(errorResponseModel, HttpStatus.BAD_REQUEST);
+//       }
+//       voyage.setDestination(destinationOptional.get());
         voyage=voyageRepository.save(voyage);
         return new ResponseEntity<>(voyage, HttpStatus.OK);
     }
