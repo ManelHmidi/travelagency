@@ -1,12 +1,15 @@
 package com.ditraacademy.travelagency.core.chambre.chambres;
 
-import com.ditraacademy.travelagency.core.chambre.categorieChambre.CategorieChambre;
+import com.ditraacademy.travelagency.core.chambre.categorieChambre.Categorie;
 import com.ditraacademy.travelagency.core.chambre.typeChambre.TypeChambre;
+import com.ditraacademy.travelagency.core.hotel.Hotel;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Setter
@@ -23,5 +26,10 @@ public class Chambre {
     @ManyToOne
     private TypeChambre typeChambre;
     @ManyToOne
-    private CategorieChambre categorieChambre;
+    private Categorie categorieChambre;
+
+    @JsonIgnore
+    @ManyToMany(mappedBy = "chambres")
+    private List<Hotel> hotels;
+
 }

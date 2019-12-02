@@ -1,9 +1,9 @@
 package com.ditraacademy.travelagency.core.chambre.chambres;
 
-import com.ditraacademy.travelagency.core.chambre.categorieChambre.CategorieChambre;
-import com.ditraacademy.travelagency.core.chambre.categorieChambre.CategorieChambreRepository;
+import com.ditraacademy.travelagency.core.chambre.categorieChambre.Categorie;
+import com.ditraacademy.travelagency.core.chambre.categorieChambre.CategorieRepository;
 import com.ditraacademy.travelagency.core.chambre.typeChambre.TypeChambre;
-import com.ditraacademy.travelagency.core.chambre.typeChambre.TypeChambreRepository;
+import com.ditraacademy.travelagency.core.chambre.typeChambre.TypeRepository;
 import com.ditraacademy.travelagency.utils.ErrorResponseModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,12 +19,12 @@ public class ChambreServices {
     @Autowired
     ChambreRepository chambreRepository;
     @Autowired
-    CategorieChambreRepository categorieChambreRepository;
+    CategorieRepository categorieChambreRepository;
     @Autowired
-    TypeChambreRepository typeChambreRepository;
+    TypeRepository typeChambreRepository;
 
     public ResponseEntity<?> createChambre (Chambre chambre){
-        Optional<CategorieChambre> categorieChambreOptional = categorieChambreRepository.findById(chambre.getCategorieChambre().getId());
+        Optional<Categorie> categorieChambreOptional = categorieChambreRepository.findById(chambre.getCategorieChambre().getId());
 
         if (! categorieChambreOptional.isPresent()){
             return new ResponseEntity<>(new ErrorResponseModel("categorie not found"), HttpStatus.BAD_REQUEST);
@@ -52,5 +52,48 @@ public class ChambreServices {
 
     public List<Chambre> getChambres (){
         return chambreRepository.findAll();
+    }
+
+
+    public ResponseEntity<ErrorResponseModel> UpdateChambreById(int id, Chambre updatedChambre) {
+        Optional<Chambre> chambreOptional = chambreRepository.findById(id);
+
+        if (!chambreOptional.isPresent()) {
+            ErrorResponseModel errorResponseModel = new ErrorResponseModel("chamber not found");
+            new ResponseEntity<>(errorResponseModel, HttpStatus.BAD_REQUEST);
+        }
+        Chambre dataBaseChambre = chambreOptional.get();
+
+        if (updatedChambre.getCategorieChambre()!= null)
+            dataBaseChambre.setCategorieChambre(updatedChambre.getCategorieChambre());
+
+        if (updatedChambre.getTypeChambre() != null)
+            dataBaseChambre.setTypeChambre(updatedChambre.getTypeChambre());
+
+        chambreRepository.save(dataBaseChambre);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> getOneChambre(int id){
+        Optional<Chambre> chambreOptional = chambreRepository.findById(id);
+
+
+        if (!chambreOptional.isPresent()) {
+            ErrorResponseModel errorResponseModel = new ErrorResponseModel("Chamber not found");
+            new ResponseEntity<>(errorResponseModel, HttpStatus.BAD_REQUEST);
+        }
+
+        Chambre chambre = chambreOptional.get();
+        return new ResponseEntity<>(chambre, HttpStatus.OK);
+    }
+
+    public ResponseEntity<?> deleteChambre(int id){
+        Optional<Chambre> chambreOptional = chambreRepository.findById(id);
+        if (!chambreOptional.isPresent()) {
+            ErrorResponseModel errorResponseModel = new ErrorResponseModel("Chamber not found");
+            new ResponseEntity<>(errorResponseModel, HttpStatus.BAD_REQUEST);
+        }
+        chambreRepository.deleteById(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 }
