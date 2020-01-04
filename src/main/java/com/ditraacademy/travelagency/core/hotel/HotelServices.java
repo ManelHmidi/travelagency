@@ -41,11 +41,11 @@ public class HotelServices {
 
         if (!hotelOptional.isPresent()) {
             ErrorResponseModel errorResponseModel = new ErrorResponseModel("Hotel not found");
-            new ResponseEntity<>(errorResponseModel, HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>(errorResponseModel, HttpStatus.BAD_REQUEST);
         }
         Hotel dataBaseHotel = hotelOptional.get();
 
-        if (updatedHotel.getNom()!= null)
+        if (updatedHotel.getNom() != null)
             dataBaseHotel.setNom(updatedHotel.getNom());
 
         if (updatedHotel.getAdresse() != null)
@@ -60,10 +60,25 @@ public class HotelServices {
         if (updatedHotel.getTelephone() != null)
             dataBaseHotel.setTelephone(updatedHotel.getTelephone());
 
+        if (updatedHotel.getChambres() != null) {
+            for (Chambre chambre : updatedHotel.getChambres()) {
+
+                Optional<Chambre> chambreOptional = chambreRepository.findById(chambre.getId());
+
+                if (!chambreOptional.isPresent()) {
+                    return new ResponseEntity<>(new ErrorResponseModel("chambre not found"), HttpStatus.BAD_REQUEST);
+                }
+
+               if (dataBaseHotel.getChambres().contains(chambre)){
+                   return new ResponseEntity<>(new ErrorResponseModel("chambre exists already"), HttpStatus.BAD_REQUEST);
+               }
+
+                dataBaseHotel.addChambre(chambre);
+            }
+       }
         hotelRepository.save(dataBaseHotel);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
     public ResponseEntity<?> getOneHotel(int id){
         Optional<Hotel> hotelOptional = hotelRepository.findById(id);
 

@@ -29,4 +29,7 @@ public class Hotel {
                inverseJoinColumns = {@JoinColumn(name = "chambre_id")})
     private List<Chambre> chambres;
 
+    void addChambre(Chambre chambre) {
+        chambres.add(chambre);
+    }
 }

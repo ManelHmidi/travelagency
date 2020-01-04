@@ -1,19 +1,34 @@
 package com.ditraacademy.travelagency.core.user;
 
 import com.ditraacademy.travelagency.utils.ErrorResponseModel;
+import com.ditraacademy.travelagency.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-public class UserServices {
+public class UserServices implements UserDetailsService {
 
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    AuthenticationManager authenticationManager;
+    @Autowired
+    JwtUtils jwtUtils;
 
     public ResponseEntity<?> createUsers (User user){
 
@@ -26,6 +41,8 @@ public class UserServices {
         if (user.getAge() <0 || user.getAge() >200)
             return new ResponseEntity<>(new ErrorResponseModel("wrong user age"),HttpStatus.BAD_REQUEST);
 
+        String password= passwordEncoder().encode(user.getPassword());
+        user.setPassword(password);
         user = userRepository.save(user);
         return new ResponseEntity<>(user,HttpStatus.OK);
     }
@@ -87,5 +104,32 @@ public class UserServices {
     public ResponseEntity<?> getUserByAge (){
         List<User> userList = userRepository.findAllByAgeIsLessThan(20);
        return new ResponseEntity<>(userList, HttpStatus.OK);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        Optional<User> userOptional= userRepository.findByUsername(username);
+        if (!userOptional.isPresent())
+            return null;
+        User user=userOptional.get();
+
+        String password = user.getPassword();
+
+        return new org.springframework.security.core.userdetails.User(username, password, AuthorityUtils.NO_AUTHORITIES);
+    }
+
+    @Bean
+    private PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
+
+    public ResponseEntity<?> signIn(SignInRequest signInRequest ){
+
+        authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(signInRequest.getUsername(), signInRequest.getPassword())
+        );
+
+        String token = jwtUtils.generateToken(signInRequest.getUsername());
+        return new ResponseEntity<>(new SignInResponse(token), HttpStatus.OK);
     }
 }
